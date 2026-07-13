@@ -1,16 +1,19 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
 import MapaColombia from '../components/MapaColombia.astro';
+import dioses from '../data/dioses.json';
 import criaturas from '../data/criaturas.json';
 import lugares from '../data/lugares.json';
 
-const totalDeidades = 226; // Actualiza este número si agregas más deidades
+// Valor inicial estático (se usará como fallback si Alpine tarda)
+const deidadInicial = dioses[Math.floor(Math.random() * dioses.length)];
+const totalDeidades = dioses.length;
 const totalCriaturas = criaturas.length;
 const totalLugares = lugares.length;
 ---
 
 <MainLayout>
-  <!-- HERO con imagen de fondo -->
+  <!-- HERO (sin cambios) -->
   <section class="relative h-[70vh] md:h-[80vh] flex items-center overflow-hidden">
     <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('/img/Lugares/Sierra-Nevada.webp');">
     <img src="/img/Lugares/Sierra-Nevada.webp" alt="" class="hidden" fetchpriority="high" />
@@ -35,7 +38,7 @@ const totalLugares = lugares.length;
     </div>
   </section>
 
-  <!-- ESTADÍSTICAS -->
+  <!-- ESTADÍSTICAS (sin cambios) -->
   <section class="max-w-7xl mx-auto px-6 mt-10 md:mt-16">
     <div class="flex flex-col md:flex-row gap-4 md:gap-6">
       <div class="flex-1 h-[100px] md:h-[120px] bg-superficie backdrop-blur rounded-xl border border-dorado/20 flex items-center px-6 md:px-8 gap-4 md:gap-6 hover:-translate-y-1 transition-all duration-300 shadow-lg">
@@ -62,7 +65,7 @@ const totalLugares = lugares.length;
     </div>
   </section>
 
-  <!-- SECCIÓN PRINCIPAL (dos columnas) -->
+  <!-- SECCIÓN PRINCIPAL (sin cambios) -->
   <section class="max-w-7xl mx-auto px-6 mt-10 md:mt-16">
     <div class="flex flex-col md:flex-row gap-6 md:gap-8">
       <div class="w-full md:w-[70%] space-y-4 md:space-y-6">
@@ -107,8 +110,13 @@ const totalLugares = lugares.length;
     </div>
   </section>
 
-  <!-- DEIDAD DESTACADA (ALEATORIA con Alpine) -->
-  <section x-data="deidadAleatoria()" class="max-w-7xl mx-auto px-6 mt-10 md:mt-16">
+  <!-- DEIDAD DESTACADA (ALEATORIA CON ALPINE - CAMBIA EN CADA VISITA) -->
+  <section x-data="{ deidad: { nombre: 'Cargando...', imagen: '/img/logo.webp', descripcion_corta: '', id: '' }, cargando: true }"
+           x-init="fetch('/data/dioses.json').then(r => r.json()).then(d => { 
+             const random = d[Math.floor(Math.random() * d.length)];
+             if (random) { deidad = random; cargando = false; }
+           }).catch(e => console.error(e))"
+           class="max-w-7xl mx-auto px-6 mt-10 md:mt-16">
     <div class="bg-superficie backdrop-blur rounded-xl border border-dorado/20 flex flex-col md:flex-row md:h-[220px] overflow-hidden">
       <div class="w-full md:w-1/4 h-48 md:h-full">
         <img :src="deidad.imagen" :alt="deidad.nombre" class="w-full h-full object-cover" />
@@ -122,25 +130,7 @@ const totalLugares = lugares.length;
     </div>
   </section>
 
-  <script>
-    document.addEventListener('alpine:init', () => {
-      Alpine.data('deidadAleatoria', () => ({
-        deidad: { nombre: '', imagen: '', descripcion_corta: '', id: '' },
-        async init() {
-          try {
-            const res = await fetch('/data/dioses.json');
-            const dioses = await res.json();
-            const random = dioses[Math.floor(Math.random() * dioses.length)];
-            this.deidad = random;
-          } catch (e) {
-            console.error('Error cargando deidad aleatoria:', e);
-          }
-        }
-      }));
-    });
-  </script>
-
-  <!-- FRASE DESTACADA -->
+  <!-- FRASE DESTACADA (sin cambios) -->
   <section class="mt-10 md:mt-16 h-auto md:h-[90px] bg-verde-profundo flex items-center justify-center border-t border-dorado/30 py-6 md:py-0">
     <p class="text-titulo italic text-base md:text-lg max-w-4xl text-center px-6">
       "Los mitos no son relatos del pasado; son formas de comprender el mundo que aún viven en la memoria de los pueblos."
