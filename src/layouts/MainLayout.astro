@@ -80,7 +80,7 @@ import '../styles/global.css';
 
     <!-- Header -->
     <header x-data="searchApp" class="h-[90px] border-b border-dorado/30 bg-fondo/90 backdrop-blur sticky top-0 z-50 flex items-center">
-      <div class="max-w-7xl mx-auto w-full px-6 flex items-center justify-between gap-6">
+      <div class="max-w-7xl mx-auto w-full px-4 md:px-6 flex items-center justify-between gap-3 md:gap-6">
         <!-- Logo -->
         <a href="/" class="flex items-center gap-3 flex-shrink-0">
           <img src="/img/logo.webp" alt="Panteón Colombia" class="w-12 h-12 rounded-full border-2 border-dorado object-cover" loading="eager" fetchpriority="high" />
@@ -142,8 +142,8 @@ import '../styles/global.css';
         </div>
 
         <!-- Menú -->
-        <nav class="flex-shrink-0" aria-label="Navegación principal">
-          <ul class="flex gap-6 text-sm uppercase tracking-wider text-titulo/80">
+        <nav aria-label="Navegación principal">
+          <ul class="flex gap-3 md:gap-6 text-xs md:text-sm uppercase tracking-wider text-titulo/80">
             <li><a href="/" class="hover:text-dorado transition-colors">Inicio</a></li>
             <li><a href="/panteon" class="hover:text-dorado transition-colors">Panteón</a></li>
             <li><a href="/criaturas" class="hover:text-dorado transition-colors">Criaturas</a></li>
