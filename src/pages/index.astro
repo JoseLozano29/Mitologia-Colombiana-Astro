@@ -1,12 +1,10 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
 import MapaColombia from '../components/MapaColombia.astro';
-import dioses from '../data/dioses.json';
 import criaturas from '../data/criaturas.json';
 import lugares from '../data/lugares.json';
 
-const deidadDestacada = dioses[Math.floor(Math.random() * dioses.length)];
-const totalDeidades = dioses.length;
+const totalDeidades = 226; // Actualiza este número si agregas más deidades
 const totalCriaturas = criaturas.length;
 const totalLugares = lugares.length;
 ---
@@ -109,20 +107,38 @@ const totalLugares = lugares.length;
     </div>
   </section>
 
-  <!-- DEIDAD DESTACADA (ALEATORIA) -->
-  <section class="max-w-7xl mx-auto px-6 mt-10 md:mt-16">
+  <!-- DEIDAD DESTACADA (ALEATORIA con Alpine) -->
+  <section x-data="deidadAleatoria()" class="max-w-7xl mx-auto px-6 mt-10 md:mt-16">
     <div class="bg-superficie backdrop-blur rounded-xl border border-dorado/20 flex flex-col md:flex-row md:h-[220px] overflow-hidden">
       <div class="w-full md:w-1/4 h-48 md:h-full">
-        <img src={deidadDestacada.imagen} alt={deidadDestacada.nombre} class="w-full h-full object-cover" />
+        <img :src="deidad.imagen" :alt="deidad.nombre" class="w-full h-full object-cover" />
       </div>
       <div class="flex-1 p-4 md:p-8 flex flex-col justify-center">
         <span class="text-dorado text-xs uppercase tracking-widest mb-1 md:mb-2">DEIDAD DESTACADA</span>
-        <h3 class="text-2xl md:text-3xl font-titulos text-titulo mb-2 md:mb-3">{deidadDestacada.nombre.toUpperCase()}</h3>
-        <p class="text-texto/70 text-sm mb-3 md:mb-4 max-w-xl">{deidadDestacada.descripcion_corta}</p>
-        <a href={`/panteon/${deidadDestacada.id}`} class="text-dorado text-xs md:text-sm uppercase tracking-wider hover:underline">LEER HISTORIA COMPLETA →</a>
+        <h3 class="text-2xl md:text-3xl font-titulos text-titulo mb-2 md:mb-3" x-text="deidad.nombre.toUpperCase()"></h3>
+        <p class="text-texto/70 text-sm mb-3 md:mb-4 max-w-xl" x-text="deidad.descripcion_corta"></p>
+        <a :href="'/panteon/' + deidad.id" class="text-dorado text-xs md:text-sm uppercase tracking-wider hover:underline">LEER HISTORIA COMPLETA →</a>
       </div>
     </div>
   </section>
+
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('deidadAleatoria', () => ({
+        deidad: { nombre: '', imagen: '', descripcion_corta: '', id: '' },
+        async init() {
+          try {
+            const res = await fetch('/data/dioses.json');
+            const dioses = await res.json();
+            const random = dioses[Math.floor(Math.random() * dioses.length)];
+            this.deidad = random;
+          } catch (e) {
+            console.error('Error cargando deidad aleatoria:', e);
+          }
+        }
+      }));
+    });
+  </script>
 
   <!-- FRASE DESTACADA -->
   <section class="mt-10 md:mt-16 h-auto md:h-[90px] bg-verde-profundo flex items-center justify-center border-t border-dorado/30 py-6 md:py-0">
