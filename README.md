@@ -6,7 +6,7 @@ Explora dioses, criaturas y lugares sagrados de más de 100 pueblos originarios.
 [![Astro](https://img.shields.io/badge/Astro-7.x-FF5A03?logo=astro)](https://astro.build)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.x-38BDF8?logo=tailwindcss)](https://tailwindcss.com)
 [![Alpine.js](https://img.shields.io/badge/Alpine.js-3.x-8BC0D0?logo=alpine.js)](https://alpinejs.dev)
-[![License](https://img.shields.io/badge/licencia-MIT-green)](LICENSE)
+[![License][![License](https://img.shields.io/badge/licencia-CC%20BY--NC--ND%204.0-lightgrey)](LICENSE)
 
 ---
 
