@@ -1,0 +1,42 @@
+<div class="w-full h-64 relative" id="contenedor-mapa">
+  <div id="mapa-leaflet" class="w-full h-full rounded-lg border border-dorado/20 z-0"></div>
+  <div id="contador-lugares" class="absolute bottom-2 left-2 bg-fondo/80 text-titulo text-xs px-2 py-1 rounded hidden"></div>
+</div>
+
+<script>
+  (async () => {
+    // Esperar a que Leaflet esté disponible
+    if (typeof L === 'undefined') {
+      document.getElementById('contenedor-mapa').innerHTML = '<p class="text-center text-texto/50 py-20">Cargando mapa...</p>';
+      return;
+    }
+
+    const map = L.map('mapa-leaflet').setView([4.5, -73], 5);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    try {
+      const res = await fetch('/data/lugares.json');
+      const data = await res.json();
+      const lugaresConCoords = data.filter(l => l.coordenadas && l.coordenadas.length === 2);
+
+      if (lugaresConCoords.length > 0) {
+        lugaresConCoords.forEach(lugar => {
+          L.marker(lugar.coordenadas)
+            .addTo(map)
+            .bindPopup(`<a href="/lugares/${lugar.id}" style="color:#D4A017;">${lugar.nombre}</a>`);
+        });
+        document.getElementById('contador-lugares').classList.remove('hidden');
+        document.getElementById('contador-lugares').innerHTML = `<span>${lugaresConCoords.length}</span> lugares sagrados`;
+      } else {
+        L.marker([4.5, -73]).addTo(map)
+          .bindPopup('Próximamente: lugares sagrados de Colombia');
+      }
+    } catch (e) {
+      console.error('Error cargando lugares:', e);
+      L.marker([4.5, -73]).addTo(map)
+        .bindPopup('Mapa de lugares sagrados');
+    }
+  })();
+</script>

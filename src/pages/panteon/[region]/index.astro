@@ -1,0 +1,99 @@
+---
+import MainLayout from '../../../layouts/MainLayout.astro';
+import CultureCard from '../../../components/CultureCard.astro';
+import dioses from '../../../data/dioses.json';
+
+export function getStaticPaths() {
+  const regiones = ['caribe', 'andina', 'pacifico', 'orinoquia', 'amazonia'];
+  return regiones.map(region => ({ params: { region } }));
+}
+
+const { region } = Astro.params;
+
+const mapeoCulturaRegion = {
+  "Muisca": "andina", "Nasa": "andina", "Pijao": "andina", "Uwa": "andina", "misak": "andina",
+  "Kogui": "caribe", "Wayuu": "caribe", "Zenú": "caribe",
+  "Uitoto": "amazonia", "Tikuna": "amazonia", "Tukano": "amazonia", "Bora": "amazonia", "Yagua": "amazonia",
+  "awa": "pacifico", "embera": "pacifico", "wounaan": "pacifico",
+  "Sikuani": "orinoquia", "Achagua": "orinoquia", "Piapoco": "orinoquia"
+};
+
+const nombresRegiones = { caribe: 'Caribe', andina: 'Andina', pacifico: 'Pacífico', orinoquia: 'Orinoquía', amazonia: 'Amazonía' };
+
+function getCulturasDeRegion(region) {
+  const culturasSet = new Set(dioses.filter(d => mapeoCulturaRegion[d.cultura] === region).map(d => d.cultura));
+  return [...culturasSet].sort();
+}
+
+function getImagenCultura(cultura) {
+  const dios = dioses.find(d => d.cultura === cultura);
+  return dios ? dios.imagen : '/img/logo.webp';
+}
+
+function getDeidadesDeCultura(cultura) {
+  return dioses.filter(d => d.cultura === cultura);
+}
+
+// Textos descriptivos completos por región (extraídos del HTML original)
+const textosRegion = {
+  caribe: `<p>El Caribe colombiano alberga dos grandes tradiciones espirituales. En la <strong>Sierra Nevada de Santa Marta</strong>, los pueblos <strong>Kogui, Arhuaco, Wiwa y Kankuamo</strong> son los guardianes del "Corazón del Mundo". Su cosmovisión gira en torno a <strong>Aluna</strong>, el pensamiento y la memoria de la Gran Madre, de donde nacen los primeros seres espirituales que dan forma al cosmos: <strong>Gaulchováng</strong>, la Madre primordial que era agua y noche; <strong>Sintána</strong>, el primer hombre y héroe cultural que obtiene la tierra fértil; y <strong>Seiyankua</strong>, el creador de la tierra sólida, los metales y la humanidad. Los Padres del Mundo organizaron los elementos: <strong>Sukukui</strong> creó el mar; <strong>Makuyantana</strong>, el fuego; <strong>Duguenavi</strong>, los animales y el arte chamánico; y <strong>Mulkuexe</strong> otorgó el primer pensamiento a los humanos.</p>
+  <p>En la península de <strong>La Guajira</strong>, el pueblo <strong>Wayúu</strong> tiene una cosmovisión poblada de dioses creadores, astros, espíritus de la naturaleza y héroes culturales. <strong>Maleiwa</strong>, el ser supremo, creó a los wayúu modelándolos con arcilla roja en la laguna sagrada de Wotkasairu. <strong>Juyá</strong> (la lluvia) y <strong>Mma</strong> (la tierra) fecundan la vida; <strong>Pulowi</strong> gobierna los vientos y las tormentas; y los astros <strong>Ka'i</strong> (el Sol) y <strong>Kashi</strong> (la Luna) iluminan el camino. Héroes como los que robaron el fuego y los gemelos transformadores dieron forma al mundo wayúu.</p> <p>En las sabanas de Córdoba y Sucre, el pueblo <strong>Zenú</strong> tejió una cosmovisión anfibia donde el agua, la tierra y el firmamento son una sola vida. De la unión de <strong>Mexión</strong> y <strong>Manexca</strong> nacieron los Hijos Fundadores, que trajeron al mundo los oficios sagrados: la orfebrería, la alfarería y el tejido de la caña flecha.</p>`,
+  
+  andina: `<p>La región Andina concentra la mayor diversidad de culturas del país. En el altiplano cundiboyacense, los <strong>Muiscas</strong> (o Chibchas) construyeron una de las civilizaciones más complejas de Colombia. Su panteón se estructura alrededor de <strong>Chiminigagua</strong>, el ser supremo y creador de la luz; <strong>Sué</strong>, el dios solar que rige la fertilidad y la vida; y <strong>Chía</strong>, la diosa lunar que simboliza la noche y la feminidad. Junto a ellos, <strong>Bachué</strong>, la madre ancestral que emergió de la laguna de Iguaque para poblar la tierra; <strong>Bochica</strong>, el héroe civilizador que enseñó las leyes y abrió el Salto del Tequendama; <strong>Chibchacum</strong>, dios de las lluvias y los terremotos que carga el mundo sobre sus hombros; <strong>Huitaca</strong>, la diosa rebelde del placer y la libertad; <strong>Nencatacoa</strong>, protector de los artesanos; <strong>Cuchavira</strong>, el arco iris mensajero; y <strong>Chaquén</strong>, dios del trabajo, el deporte y la guerra ritual.</p>
+  <p>En el Cauca, los <strong>Nasa</strong> (Páez) son hijos del agua y las estrellas, guardianes de la madre tierra. Su origen surge de la unión del Padre Estrella y la Madre Agua en lo alto de las montañas. El Gran Espíritu <strong>Ks'a'w Wala</strong> dio vida a los espíritus mayores: <strong>Ekthe'</strong> (el Trueno), <strong>Tay</strong> (el Sol), <strong>A'te</strong> (la Luna) y los guardianes de la naturaleza como <strong>Daat'i</strong> y <strong>Kl'umn</strong>. El héroe cultural <strong>Juan Tama de la Estrella</strong>, nacido de las aguas, unificó al pueblo, estableció sus leyes y regresó a la laguna, desde donde sigue protegiendo el territorio.</p>
+  <p>En el Tolima, los <strong>Pijaos</strong> conciben el origen en la Gran Laguna (<strong>Tanachainá</strong>), de donde emergieron <strong>Locomboo</strong>, la abuela del tiempo; <strong>Nacuco</strong>, el dios del fuego interior; y <strong>Lulumoy</strong>, el "Dios Grande" de tres cabezas. El Padre Sol (<strong>Ta</strong>) y la Madre Luna (<strong>Taiba</strong>) iniciaron la danza de opuestos que permite la vida.</p>
+  <p>En la Sierra Nevada del Cocuy, los <strong>U'wa</strong> (Tunebos) son guardianes del equilibrio cósmico. Su cosmovisión se teje en torno a <strong>Rurcocá</strong>, la abuela primordial, y <strong>Sira</strong>, el padre celeste. Los <strong>Misak</strong> (Guambianos) de la Cordillera Central son hijos del agua, tejidos en la dualidad de <strong>Pishimisak</strong> y <strong>Kallim</strong>, los grandes espíritus que encierran lo masculino y lo femenino.</p>`,
+  
+  pacifico: `<p>En el Pacífico colombiano habitan pueblos de selva y río con cosmovisiones profundamente ligadas al territorio. Los <strong>Awá</strong> (ɨnkal Awá) conciben <strong>cuatro mundos</strong> verticales: el Masa Su, el Pas Su, el Kutña Su y el Ampara Su. En el principio, una barbacha negra descendió de un árbol para dar vida al primer hombre <strong>Atim Awá</strong>, y una barbacha blanca creó a la primera mujer <strong>Ashampa</strong>. El <strong>Árbol Grande (Katsa Ti)</strong> albergaba todas las semillas; al ser derribado, esparció los alimentos por el territorio y marcó el origen de la agricultura. El Trueno, el arcoíris (Cueche), la Vieja del Monte y otros espíritus mantienen el equilibrio de la casa grande que es el territorio Awá.</p>
+  <p>Los <strong>Emberá</strong> (êbêra, "gente") se organizan en <strong>tres mundos verticales</strong>: el Bajía (mundo de arriba), el mundo medio (egoró) y el Armucurá (mundo subterráneo). En el principio, <strong>Dachizeze</strong>, el ser primordial andrógino, lanzó un escupitajo del que nació <strong>Karagabí</strong>, el dios creador. <strong>Dabeiba</strong>, hija de Karagabí, enseñó a los Emberá a tejer, hacer cerámica, pintarse y sembrar. <strong>Cobaima</strong>, el primer jaibaná, ordenó el territorio, separó los animales dañinos y nombró los ríos.</p>
+  <p>Los <strong>Wounaan</strong> (Waunana, Noanamá) se ordenan en <strong>cuatro mundos</strong> verticales. En el principio, <strong>Maach Aai</strong> surgió de una laguna primordial y creó la tierra, el mar y las montañas. En la playa del Baudó engendró a su hijo <strong>Êwandam</strong>, quien moldeó a los primeros Wounaan con barro. Los <strong>waspien</strong> son espíritus invisibles, dueños del poder espiritual, que protegen la flora y la fauna.</p>`,
+  
+  orinoquia: `<p>Los Llanos Orientales son el territorio de los <strong>Sikuani</strong> (familia Guahibo), <strong>Achagua</strong> y <strong>Piapoco</strong> (familia Arawak), culturas que han sido vecinas durante siglos. El contacto constante, los matrimonios mixtos y el intercambio de palabras han tejido un patrimonio mitológico común que se refleja en cinco grandes temas: el <strong>dios creador supremo</strong> (Kuwei/Purú), la <strong>serpiente primordial</strong> vencida que se convirtió en la Vía Láctea, el <strong>árbol de la vida</strong> que contenía todos los alimentos, los <strong>héroes convertidos en estrellas</strong> (Kajuyali-Orión, las Pléyades) que marcan el calendario, y los <strong>espíritus dueños de la naturaleza</strong> (Ainawi/Mawali) que exigen respeto y reciprocidad.</p>
+  <p>La cosmovisión <strong>Sikuani</strong> nace del <strong>árbol Kaliawirinae</strong>, eje del mundo del que brotaron todos los alimentos y la vida. El dios supremo <strong>Kuwei</strong> creó el mundo tras vencer a la anaconda primordial <strong>Kuemi</strong>, que hoy es la Vía Láctea. Los héroes <strong>Tsamani</strong> (delfín) y <strong>Kajuyali</strong> (Orión) ascendieron al cielo y marcaron el calendario. Los <strong>Achagua</strong> se organizan en tres mundos interconectados. El dios creador <strong>Purú</strong> envió a su hija guerrera para vencer a la gran serpiente primordial. El <strong>árbol Chumachumarri</strong> contenía todos los alimentos y dio origen a la agricultura. Los <strong>Piapoco</strong> se sostienen sobre <strong>dieciocho mundos superpuestos</strong>. <strong>Kalíiduwápini</strong> moldeó con barro a los primeros humanos. <strong>Kúwai</strong>, el dios supremo, derrotó a la anaconda caníbal <strong>Kemeine</strong>. Del <strong>Árbol de la Vida (Kalíiawiri)</strong>, cuyo tronco es el cerro Autana, cayeron todas las plantas cultivadas.</p>`,
+  
+  amazonia: `<p>La Amazonía colombiana es el hogar de pueblos que conciben el cosmos como una maloca de varios pisos donde todo tiene un dueño espiritual. Los <strong>Uitoto</strong> (murui-muinane) conciben <strong>cinco mundos superpuestos</strong>. <strong>Nofïdeño (Buinaiño)</strong>, la Madre Primordial, sostenía el cosmos. De su aliento nació <strong>Mooma</strong>, el Padre Creador. Tras el gran diluvio, <strong>Buinaima</strong> restauró el mundo con ayuda de su hermano <strong>Fïzido</strong> (el Picaflor), quien robó el fuego.</p>
+  <p>Los <strong>Tikuna</strong> dividen el cosmos en <strong>tres mundos</strong>. Los gemelos <strong>Yoí</strong> e <strong>Ípi</strong>, nacidos de las rodillas de <strong>Ngṵtapa</strong>, son los héroes civilizadores. Yoí pescó a los primeros Tikuna en la quebrada <strong>Eware</strong>; Ípi, trickster desordenado, dio origen a los peces y a otros pueblos. La gran anaconda <strong>Yéwae</strong>, manifestada como arco iris, sostiene los mundos y es dueña del agua.</p>
+  <p>Los <strong>Tukano</strong> conciben el universo como una maloca de tres pisos. <strong>Yepá Huáke</strong>, el creador supremo, designó a <strong>Yúpuri Baúro</strong> como jefe de todas las gentes. La <strong>Anaconda Canoa</strong> remontó los ríos trayendo en su vientre a los ancestros de los distintos clanes. Los <strong>Bora</strong> narran que en el principio <strong>Píívyéjɨ Niimúhe</strong>, el Creador, soltó su palabra en forma de algodón y surgió la primera tierra. Los <strong>Yagua</strong> conciben <strong>ocho mundos superiores y dos inferiores</strong>. <strong>Tupana</strong>, el Gran Padre, hizo llover sobre la tierra seca y de las primeras gotas nació el primer hombre. Los <strong>Mellizos (Ndano y Mena)</strong> crearon los clanes y talaron el árbol <strong>Lupuna</strong>, cuyo tronco se convirtió en el Amazonas.</p>`
+};
+---
+
+<MainLayout>
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <nav class="text-sm text-texto/50 mb-8">
+      <a href="/" class="hover:text-dorado transition-colors">Inicio</a>
+      <span class="mx-2">›</span>
+      <a href="/panteon" class="hover:text-dorado transition-colors">Panteón</a>
+      <span class="mx-2">›</span>
+      <span class="text-dorado">{nombresRegiones[region]}</span>
+    </nav>
+
+    <h1 class="text-4xl font-titulos text-dorado mb-4">Culturas de la región {nombresRegiones[region]}</h1>
+
+    <!-- Texto descriptivo completo de la región -->
+    {textosRegion[region] && (
+      <div class="bg-superficie border border-dorado/20 rounded-2xl p-6 mb-10 text-texto/80 leading-relaxed space-y-3">
+        <Fragment set:html={textosRegion[region]} />
+      </div>
+    )}
+
+    <h2 class="text-2xl font-titulos text-titulo mb-6">Culturas de {nombresRegiones[region]}</h2>
+
+    <p class="text-texto/70 text-lg mb-8 max-w-3xl">
+      Selecciona una cultura para ver sus deidades.
+    </p>
+    <a href="/panteon" class="inline-flex items-center gap-2 text-texto/50 hover:text-dorado transition-colors mb-8 text-sm">
+      <i class="fas fa-arrow-left"></i> Volver a regiones
+    </a>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {getCulturasDeRegion(region).map(cultura => (
+        <CultureCard
+          nombre={cultura}
+          imagen={getImagenCultura(cultura)}
+          descripcion={`${getDeidadesDeCultura(cultura).length} deidades documentadas`}
+          href={`/panteon/${region}/${cultura.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '')}`}
+        />
+      ))}
+    </div>
+  </div>
+</MainLayout>

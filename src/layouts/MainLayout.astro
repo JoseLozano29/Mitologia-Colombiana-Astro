@@ -1,0 +1,211 @@
+---
+import '../styles/global.css';
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Atlas interactivo de la mitología indígena colombiana. Explora dioses, criaturas y lugares sagrados de más de 100 pueblos originarios." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Atlas interactivo de la mitología indígena colombiana. Explora dioses, criaturas y lugares sagrados de más de 100 pueblos originarios." />
+    <link rel="preload" as="image" href="/img/Lugares/Sierra-Nevada.webp" fetchpriority="high" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>Mitología Colombiana · Raíces Indígenas</title>
+
+    <!-- Registrar componente Alpine ANTES de que Alpine se inicie -->
+    <script>
+      document.addEventListener('alpine:init', () => {
+        Alpine.data('searchApp', () => ({
+          query: '',
+          results: [],
+          filtroTipo: 'todos',
+          fuse: null,
+          allItems: [],
+
+          async init() {
+            try {
+              const [diosesRes, criaturasRes, lugaresRes] = await Promise.all([
+                fetch('/data/dioses.json').then(r => r.json()),
+                fetch('/data/criaturas.json').then(r => r.json()),
+                fetch('/data/lugares.json').then(r => r.json()),
+              ]);
+              this.allItems = [
+                ...diosesRes.map(d => ({ ...d, tipo: 'Deidad', url: `/panteon/${d.id}` })),
+                ...criaturasRes.map(c => ({ ...c, tipo: 'Criatura', url: `/criaturas/${c.id}` })),
+                ...lugaresRes.map(l => ({ ...l, tipo: 'Lugar', url: `/lugares/${l.id}` })),
+              ];
+              this.fuse = new Fuse(this.allItems, {
+                keys: ['nombre', 'cultura', 'region', 'descripcion_corta', 'atributos'],
+                threshold: 0.3,
+                includeScore: true,
+              });
+            } catch (e) {
+              console.error('Error cargando datos:', e);
+            }
+          },
+
+          search() {
+            if (!this.fuse || this.query.length < 1) {
+              this.results = [];
+              return;
+            }
+            this.results = this.fuse.search(this.query).map(r => r.item);
+            
+            // Aplicar filtro por tipo
+            if (this.filtroTipo !== 'todos') {
+              this.results = this.results.filter(item => item.tipo === this.filtroTipo);
+            }
+          }
+        }));
+      });
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Fuse.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+    <!-- Leaflet CSS (carga asíncrona) -->
+    <link rel="preload" as="style" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" /></noscript>
+    <!-- Leaflet JS -->
+    <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Font Awesome (carga asíncrona) -->
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" /></noscript>
+  </head>
+  <body class="bg-fondo text-texto font-cuerpo min-h-screen flex flex-col antialiased">
+    
+    <!-- Enlace de accesibilidad: saltar al contenido principal -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-dorado text-fondo px-4 py-2 rounded-full z-50">Saltar al contenido principal</a>
+
+    <!-- Header -->
+    <header x-data="searchApp" class="h-[90px] border-b border-dorado/30 bg-fondo/90 backdrop-blur sticky top-0 z-50 flex items-center">
+      <div class="max-w-7xl mx-auto w-full px-6 flex items-center justify-between gap-6">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-3 flex-shrink-0">
+          <img src="/img/logo.webp" alt="Panteón Colombia" class="w-12 h-12 rounded-full border-2 border-dorado object-cover" loading="eager" fetchpriority="high" />
+          <div class="leading-tight hidden sm:block">
+            <div class="text-dorado font-titulos text-sm tracking-wider">MITOLOGÍA</div>
+            <div class="text-titulo font-titulos text-sm tracking-wider">COLOMBIANA</div>
+            <div class="text-texto/60 text-[10px] tracking-widest">RAÍCES INDÍGENAS</div>
+          </div>
+        </a>
+
+        <!-- Buscador (solo desktop) -->
+        <div class="hidden lg:block w-full max-w-md relative" @click.outside="results = []">
+          <div class="relative">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-dorado text-lg"></i>
+            <input
+              type="text"
+              x-model="query"
+              @input="search()"
+              @focus="if(query.length >= 1) search()"
+              placeholder="Buscar deidad, criatura, lugar..."
+              class="w-full h-12 bg-[#081B1D] border border-[#B88A2A] rounded-full pl-12 pr-4 text-titulo text-sm placeholder:text-texto/50 focus:outline-none focus:border-dorado-claro transition-all"
+            />
+          </div>
+          <!-- Resultados desplegables -->
+          <div
+            x-show="query.length >= 1"
+            x-transition
+            class="absolute top-14 left-0 right-0 bg-[#081B1D] border border-dorado/30 rounded-2xl p-4 shadow-2xl z-50 max-h-80 overflow-y-auto"
+          >
+            <!-- Filtros rápidos por tipo -->
+            <div class="flex gap-2 mb-3 pb-3 border-b border-dorado/20">
+              <button @click="filtroTipo = 'todos'; search()" 
+                      :class="filtroTipo === 'todos' ? 'bg-dorado text-fondo' : 'bg-transparent text-texto/50 border border-texto/20'"
+                      class="text-xs px-3 py-1 rounded-full transition-colors">Todos</button>
+              <button @click="filtroTipo = 'Deidad'; search()" 
+                      :class="filtroTipo === 'Deidad' ? 'bg-dorado text-fondo' : 'bg-transparent text-texto/50 border border-texto/20'"
+                      class="text-xs px-3 py-1 rounded-full transition-colors">Deidades</button>
+              <button @click="filtroTipo = 'Criatura'; search()" 
+                      :class="filtroTipo === 'Criatura' ? 'bg-verde-boton text-white' : 'bg-transparent text-texto/50 border border-texto/20'"
+                      class="text-xs px-3 py-1 rounded-full transition-colors">Criaturas</button>
+              <button @click="filtroTipo = 'Lugar'; search()" 
+                      :class="filtroTipo === 'Lugar' ? 'bg-blue-400 text-fondo' : 'bg-transparent text-texto/50 border border-texto/20'"
+                      class="text-xs px-3 py-1 rounded-full transition-colors">Lugares</button>
+            </div>
+
+            <template x-for="item in results.slice(0, 8)" :key="item.id">
+              <a :href="item.url" class="flex items-center gap-3 p-2 hover:bg-dorado/10 rounded-xl transition-colors">
+                <img :src="item.imagen" :alt="item.nombre" class="w-10 h-10 rounded-full object-cover border border-dorado/30" />
+                <div>
+                  <p class="text-titulo text-sm font-semibold" x-text="item.nombre"></p>
+                  <p class="text-texto/50 text-xs" x-text="item.tipo + ' · ' + (item.cultura || '')"></p>
+                </div>
+              </a>
+            </template>
+            <div x-show="results.length === 0 && query.length >= 1" class="text-center text-texto/50 text-sm py-2">
+              No se encontraron resultados
+            </div>
+          </div>
+        </div>
+
+        <!-- Menú -->
+        <nav class="flex-shrink-0" aria-label="Navegación principal">
+          <ul class="flex gap-6 text-sm uppercase tracking-wider text-titulo/80">
+            <li><a href="/" class="hover:text-dorado transition-colors">Inicio</a></li>
+            <li><a href="/panteon" class="hover:text-dorado transition-colors">Panteón</a></li>
+            <li><a href="/criaturas" class="hover:text-dorado transition-colors">Criaturas</a></li>
+            <li><a href="/lugares" class="hover:text-dorado transition-colors">Lugares</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main id="main-content" class="flex-1 relative z-10">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#0A1F21] text-gray-300 py-12 px-4 mt-16 border-t border-dorado/20">
+      <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 text-sm">
+        <!-- Logo y descripción -->
+        <div class="flex flex-col items-start gap-4">
+          <div class="flex items-center gap-4">
+            <img src="/img/logo.webp" alt="Logo Panteón Colombia" class="w-16 h-16 rounded-2xl border-2 border-dorado/50" />
+            <div>
+              <p class="text-white font-titulos text-base tracking-wide">PANTEÓN COLOMBIA</p>
+              <p class="text-xs text-texto/50 mt-1">Mitología, memoria y resistencia indígena</p>
+            </div>
+          </div>
+          <p class="text-xs text-texto/40">Imágenes generadas con IA · 2026</p>
+        </div>
+
+        <!-- Explorar -->
+        <div>
+          <h4 class="text-dorado font-titulos text-sm tracking-wider mb-4 uppercase">Explorar</h4>
+          <ul class="space-y-2">
+            <li><a href="/panteon" class="hover:text-dorado transition-colors">Panteón de Dioses</a></li>
+            <li><a href="/criaturas" class="hover:text-dorado transition-colors">Bestiario / Criaturas</a></li>
+            <li><a href="/lugares" class="hover:text-dorado transition-colors">Lugares Sagrados</a></li>
+            <li><a href="/culturas" class="hover:text-dorado transition-colors">Culturas Indígenas</a></li>
+            <li><a href="/acerca" class="hover:text-dorado transition-colors">Acerca del Proyecto</a></li>
+          </ul>
+        </div>
+
+        <!-- Contacto y redes -->
+        <div>
+          <h4 class="text-dorado font-titulos text-sm tracking-wider mb-4 uppercase">Contacto</h4>
+          <p class="mb-3">
+            <i class="fas fa-envelope mr-2 text-dorado/70"></i>
+            <a href="mailto:panteoncolombia@gmail.com" class="hover:text-dorado transition-colors" target="_blank" rel="noopener">panteoncolombia@gmail.com</a>
+          </p>
+          <div class="flex gap-4 text-xl mt-4">
+            <a href="https://www.youtube.com/channel/UCCs6podmD_igKdpJBCt8J-Q" target="_blank" rel="noopener" aria-label="YouTube" class="hover:text-dorado transition-colors"><i class="fab fa-youtube"></i></a>
+            <a href="https://www.tiktok.com/@panteoncolombia" target="_blank" rel="noopener" aria-label="TikTok" class="hover:text-dorado transition-colors"><i class="fab fa-tiktok"></i></a>
+            <a href="https://web.facebook.com/PanteonColombia" target="_blank" rel="noopener" aria-label="Facebook" class="hover:text-dorado transition-colors"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.instagram.com/panteoncolombia/" target="_blank" rel="noopener" aria-label="Instagram" class="hover:text-dorado transition-colors"><i class="fab fa-instagram"></i></a>
+          </div>
+          <p class="text-xs text-texto/40 mt-4 leading-relaxed">¿Sugerencias, correcciones o aportes?<br/>Escríbenos, leemos cada mensaje.</p>
+        </div>
+      </div>
+      <div class="max-w-7xl mx-auto text-center mt-10 pt-6 border-t border-dorado/10 text-xs text-texto/40 tracking-wide">
+        <p>© Proyecto autónomo · 2026 · Respeto por los saberes ancestrales</p>
+        <p class="mt-1"><i class="fas fa-leaf mr-1 text-verde-boton/70"></i> Información basada en fuentes etnográficas y tradición oral</p>
+      </div>
+    </footer>
+
+  </body>
+</html>

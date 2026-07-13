@@ -1,0 +1,99 @@
+---
+// Componente island (solo cliente)
+---
+
+<div
+  x-data="searchComponent()"
+  @click.outside="results = []"
+  class="relative w-full"
+>
+  <!-- Campo de búsqueda -->
+  <div class="relative">
+    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-dorado text-lg"></i>
+    <input
+      type="text"
+      x-model="query"
+      @input="search()"
+      @focus="if(query.length >= 2) search()"
+      placeholder="Buscar deidad, criatura, lugar..."
+      class="w-full h-12 bg-[#081B1D] border border-[#B88A2A] rounded-full pl-12 pr-4 text-titulo text-sm placeholder:text-texto/50 focus:outline-none focus:border-dorado-claro transition-all"
+    />
+  </div>
+
+  <!-- Panel de resultados -->
+  <div
+    x-show="query.length >= 2"
+    x-transition
+    class="absolute top-14 left-0 right-0 bg-[#081B1D] border border-dorado/30 rounded-2xl p-4 shadow-2xl z-50 max-h-80 overflow-y-auto"
+  >
+    <!-- Lista de resultados -->
+    <template x-for="item in results.slice(0, 8)" :key="item.id">
+      <a
+        :href="item.url"
+        class="flex items-center gap-3 p-2 hover:bg-dorado/10 rounded-xl transition-colors"
+      >
+        <img
+          :src="item.imagen"
+          :alt="item.nombre"
+          class="w-10 h-10 rounded-full object-cover border border-dorado/30"
+        />
+        <div>
+          <p class="text-titulo text-sm font-semibold" x-text="item.nombre"></p>
+          <p class="text-texto/50 text-xs" x-text="item.tipo + ' · ' + (item.cultura || '')"></p>
+        </div>
+      </a>
+    </template>
+
+    <!-- Mensaje de vacío -->
+    <div
+      x-show="results.length === 0 && query.length >= 2"
+      class="text-center text-texto/50 text-sm py-2"
+    >
+      No se encontraron resultados
+    </div>
+  </div>
+</div>
+
+<script>
+  import Fuse from 'fuse.js';
+
+  window.searchComponent = function () {
+    return {
+      query: '',
+      results: [],
+      fuse: null,
+      allItems: [],
+
+      async init() {
+        try {
+          const [diosesRes, criaturasRes, lugaresRes] = await Promise.all([
+            fetch('/data/dioses.json').then(r => r.json()),
+            fetch('/data/criaturas.json').then(r => r.json()),
+            fetch('/data/lugares.json').then(r => r.json()),
+          ]);
+
+          this.allItems = [
+            ...diosesRes.map(d => ({ ...d, tipo: 'Deidad', url: `/panteon/${d.id}` })),
+            ...criaturasRes.map(c => ({ ...c, tipo: 'Criatura', url: `/criaturas/${c.id}` })),
+            ...lugaresRes.map(l => ({ ...l, tipo: 'Lugar', url: `/lugares/${l.id}` })),
+          ];
+
+          this.fuse = new Fuse(this.allItems, {
+            keys: ['nombre', 'cultura', 'region', 'descripcion_corta', 'atributos'],
+            threshold: 0.3,
+          });
+        } catch (e) {
+          console.error('Error cargando datos de búsqueda:', e);
+        }
+      },
+
+      search() {
+        if (!this.fuse || this.query.length < 2) {
+          this.results = [];
+          return;
+        }
+        this.results = this.fuse.search(this.query).map(r => r.item);
+      },
+    };
+  };
+</script>

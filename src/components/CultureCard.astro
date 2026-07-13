@@ -1,0 +1,13 @@
+---
+const { nombre, imagen, descripcion, href } = Astro.props;
+---
+
+<a href={href} class="group flex flex-col sm:flex-row items-center gap-4 sm:gap-5 bg-fondo/60 backdrop-blur border border-dorado/20 rounded-xl p-4 sm:p-5 hover:border-dorado/50 hover:-translate-y-1 transition-all duration-300 shadow-lg">
+  <div class="w-20 h-20 rounded-full overflow-hidden flex-shrink-0 border-2 border-dorado/30 group-hover:border-dorado/60 transition-colors">
+    <img src={imagen} alt={nombre} class="w-full h-full object-cover" loading="lazy" decoding="async" />
+  </div>
+  <div class="text-center sm:text-left">
+    <h3 class="text-lg font-titulos text-titulo group-hover:text-dorado transition-colors">{nombre}</h3>
+    <p class="text-texto/60 text-sm mt-1">{descripcion}</p>
+  </div>
+</a>

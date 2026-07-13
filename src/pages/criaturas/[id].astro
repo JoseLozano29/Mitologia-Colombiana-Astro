@@ -1,0 +1,47 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import criaturas from '../../data/criaturas.json';
+
+export function getStaticPaths() {
+  return criaturas.map(c => ({ params: { id: c.id } }));
+}
+
+const { id } = Astro.params;
+const criatura = criaturas.find(c => c.id === id);
+const titulo = criatura ? `${criatura.nombre} · Bestiario Colombiano` : 'Criatura no encontrada';
+const descripcion = criatura?.descripcion_corta || '';
+---
+
+<MainLayout>
+  <head>
+    <title>{titulo}</title>
+    <meta name="description" content={descripcion} />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:image" content={criatura?.imagen} />
+  </head>
+
+  {criatura ? (
+    <div class="max-w-4xl mx-auto px-6 py-12">
+      <img src={criatura.imagen} alt={criatura.nombre} class="w-full h-auto object-contain rounded-2xl mb-8 shadow-2xl border border-dorado/30" />
+      <h1 class="text-4xl md:text-5xl font-titulos text-dorado mb-4">{criatura.nombre}</h1>
+      <span class="inline-block bg-dorado/20 text-dorado-claro px-4 py-1 rounded-full text-sm mb-6">{criatura.cultura}</span>
+      <h2 class="text-2xl font-titulos text-titulo mb-4">Historia y atributos</h2>
+      <div class="prose prose-invert max-w-none text-texto/90 leading-relaxed" set:html={criatura.descripcion} />
+      <div class="flex flex-wrap gap-4 mt-8 border-t border-dorado/20 pt-6">
+        {criatura.atributos.map((attr, i) => (
+          <span class="text-sm text-texto/70 flex items-center gap-2 bg-fondo/50 px-4 py-2 rounded-full border border-dorado/20">
+            <i class={`fas ${criatura.iconos[i] || 'fa-star'} text-dorado`}></i> {attr}
+          </span>
+        ))}
+      </div>
+      <a href="/criaturas" class="inline-flex items-center gap-2 mt-8 text-dorado hover:underline"><i class="fas fa-arrow-left"></i> Volver al bestiario</a>
+    </div>
+  ) : (
+    <div class="text-center py-20">
+      <h1 class="text-3xl font-titulos text-titulo mb-4">Criatura no encontrada</h1>
+      <h2 class="sr-only">Información detallada</h2>
+      <a href="/criaturas" class="text-dorado hover:underline"><i class="fas fa-arrow-left"></i> Volver al bestiario</a>
+    </div>
+  )}
+</MainLayout>

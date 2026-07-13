@@ -1,17 +1,133 @@
 ---
+import MainLayout from '../layouts/MainLayout.astro';
+import MapaColombia from '../components/MapaColombia.astro';
+import dioses from '../data/dioses.json';
+import criaturas from '../data/criaturas.json';
+import lugares from '../data/lugares.json';
 
+const deidadDestacada = dioses[Math.floor(Math.random() * dioses.length)];
+const totalDeidades = dioses.length;
+const totalCriaturas = criaturas.length;
+const totalLugares = lugares.length;
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<MainLayout>
+  <!-- HERO con imagen de fondo -->
+  <section class="relative h-[70vh] md:h-[80vh] flex items-center overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('/img/Lugares/Sierra-Nevada.webp');">
+    <img src="/img/Lugares/Sierra-Nevada.webp" alt="" class="hidden" fetchpriority="high" />
+      <div class="absolute inset-0 bg-gradient-to-b from-[rgba(0,0,0,0.75)] via-[rgba(0,0,0,0.55)] to-[rgba(0,0,0,0.7)]"></div>
+    </div>
+    
+    <div class="relative z-10 max-w-7xl mx-auto w-full px-6">
+      <div class="max-w-full md:max-w-[45%]">
+        <h1 class="text-4xl md:text-7xl font-titulos leading-[0.9] text-white drop-shadow-lg mb-4">
+          MITOLOGÍA<br/>
+          <span class="text-dorado drop-shadow-lg">COLOMBIANA</span>
+        </h1>
+        <p class="text-base md:text-xl text-dorado-claro uppercase tracking-widest mb-4 md:mb-6 drop-shadow-md">RAÍCES INDÍGENAS, DIOSES ANCESTRALES Y TERRITORIOS SAGRADOS</p>
+        <p class="text-sm md:text-lg text-titulo/90 max-w-[700px] mb-6 md:mb-8 leading-relaxed drop-shadow-md">
+          Explora el atlas interactivo de las cosmovisiones de más de 100 pueblos originarios. Un viaje visual por dioses, criaturas y lugares sagrados que habitan la memoria colectiva de Colombia.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 md:gap-5">
+          <a href="/panteon" class="bg-[#2E5A3B] hover:bg-[#1E3B28] text-white px-5 md:px-7 py-3 rounded-full text-sm md:text-base font-medium transition-all shadow-md hover:shadow-lg text-center">EXPLORAR EL ATLAS</a>
+          <a href="/culturas" class="border-2 border-dorado text-dorado hover:bg-dorado hover:text-fondo px-5 md:px-7 py-3 rounded-full text-sm md:text-base font-medium transition-all shadow-md hover:shadow-lg text-center">CONOCER LAS CULTURAS</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESTADÍSTICAS -->
+  <section class="max-w-7xl mx-auto px-6 mt-10 md:mt-16">
+    <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+      <div class="flex-1 h-[100px] md:h-[120px] bg-superficie backdrop-blur rounded-xl border border-dorado/20 flex items-center px-6 md:px-8 gap-4 md:gap-6 hover:-translate-y-1 transition-all duration-300 shadow-lg">
+        <i class="fas fa-sun text-3xl md:text-4xl text-dorado"></i>
+        <div>
+          <div class="text-2xl md:text-3xl font-titulos text-dorado">{totalDeidades}</div>
+          <div class="text-xs md:text-sm text-texto/70 uppercase tracking-wider">DEIDADES DOCUMENTADAS</div>
+        </div>
+      </div>
+      <div class="flex-1 h-[100px] md:h-[120px] bg-superficie backdrop-blur rounded-xl border border-emerald-400/30 flex items-center px-6 md:px-8 gap-4 md:gap-6 hover:-translate-y-1 transition-all duration-300 shadow-lg">
+        <i class="fas fa-dragon text-3xl md:text-4xl text-emerald-400"></i>
+        <div>
+          <div class="text-2xl md:text-3xl font-titulos text-emerald-400">{totalCriaturas}</div>
+          <div class="text-xs md:text-sm text-texto/70 uppercase tracking-wider">CRIATURAS MÍTICAS</div>
+        </div>
+      </div>
+      <div class="flex-1 h-[100px] md:h-[120px] bg-superficie backdrop-blur rounded-xl border border-blue-900/30 flex items-center px-6 md:px-8 gap-4 md:gap-6 hover:-translate-y-1 transition-all duration-300 shadow-lg">
+        <i class="fas fa-mountain text-3xl md:text-4xl text-blue-400"></i>
+        <div>
+          <div class="text-2xl md:text-3xl font-titulos text-blue-400">{totalLugares}</div>
+          <div class="text-xs md:text-sm text-texto/70 uppercase tracking-wider">LUGARES SAGRADOS</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN PRINCIPAL (dos columnas) -->
+  <section class="max-w-7xl mx-auto px-6 mt-10 md:mt-16">
+    <div class="flex flex-col md:flex-row gap-6 md:gap-8">
+      <div class="w-full md:w-[70%] space-y-4 md:space-y-6">
+        <div class="relative h-[200px] md:h-[240px] rounded-xl overflow-hidden group cursor-pointer" onclick="window.location.href='/panteon'">
+          <img src="/img/Dioses/Bachue.webp" alt="Panteón" class="absolute inset-0 w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-[rgba(0,0,0,.45)] group-hover:bg-[rgba(0,0,0,.3)] transition-all"></div>
+          <div class="absolute bottom-0 left-0 p-4 md:p-8">
+            <h3 class="text-2xl md:text-3xl font-titulos text-titulo mb-1 md:mb-2">PANTEÓN</h3>
+            <p class="text-texto/80 text-sm mb-2 md:mb-4 max-w-md">Explora los dioses y espíritus que dieron forma al cosmos indígena colombiano.</p>
+            <span class="text-dorado text-xs md:text-sm uppercase tracking-wider">VER DEIDADES →</span>
+          </div>
+        </div>
+        <div class="relative h-[200px] md:h-[240px] rounded-xl overflow-hidden group cursor-pointer" onclick="window.location.href='/criaturas'">
+          <img src="/img/Criaturas/Mohan_AND.webp" alt="Bestiario" class="absolute inset-0 w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-[rgba(0,0,0,.45)] group-hover:bg-[rgba(0,0,0,.3)] transition-all"></div>
+          <div class="absolute bottom-0 left-0 p-4 md:p-8">
+            <h3 class="text-2xl md:text-3xl font-titulos text-titulo mb-1 md:mb-2">BESTIARIO</h3>
+            <p class="text-texto/80 text-sm mb-2 md:mb-4 max-w-md">Criaturas, espectros y entes fantásticos de la tradición oral colombiana.</p>
+            <span class="text-emerald-400 text-xs md:text-sm uppercase tracking-wider">VER CRIATURAS →</span>
+          </div>
+        </div>
+        <div class="relative h-[200px] md:h-[240px] rounded-xl overflow-hidden group cursor-pointer" onclick="window.location.href='/lugares'">
+          <img src="/img/Lugares/Laguna-Iguaque.webp" alt="Lugares Sagrados" class="absolute inset-0 w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-[rgba(0,0,0,.45)] group-hover:bg-[rgba(0,0,0,.3)] transition-all"></div>
+          <div class="absolute bottom-0 left-0 p-4 md:p-8">
+            <h3 class="text-2xl md:text-3xl font-titulos text-titulo mb-1 md:mb-2">LUGARES SAGRADOS</h3>
+            <p class="text-texto/80 text-sm mb-2 md:mb-4 max-w-md">Montañas, lagunas y ríos donde lo divino se encuentra con lo terrenal.</p>
+            <span class="text-blue-400 text-xs md:text-sm uppercase tracking-wider">EXPLORAR LUGARES →</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="w-full md:w-[30%]">
+        <div class="bg-superficie backdrop-blur rounded-xl border border-dorado/20 p-4 md:p-6 h-full">
+          <h3 class="text-lg md:text-xl font-titulos text-dorado mb-4 md:mb-6 text-center">EXPLORA LAS REGIONES MÍTICAS</h3>
+          <MapaColombia />
+          <a href="/lugares" class="block text-center border border-dorado text-dorado py-3 rounded-full text-sm uppercase tracking-wider hover:bg-dorado hover:text-fondo transition-all mt-4">
+            VER TODAS LAS REGIONES
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEIDAD DESTACADA (ALEATORIA) -->
+  <section class="max-w-7xl mx-auto px-6 mt-10 md:mt-16">
+    <div class="bg-superficie backdrop-blur rounded-xl border border-dorado/20 flex flex-col md:flex-row md:h-[220px] overflow-hidden">
+      <div class="w-full md:w-1/4 h-48 md:h-full">
+        <img src={deidadDestacada.imagen} alt={deidadDestacada.nombre} class="w-full h-full object-cover" />
+      </div>
+      <div class="flex-1 p-4 md:p-8 flex flex-col justify-center">
+        <span class="text-dorado text-xs uppercase tracking-widest mb-1 md:mb-2">DEIDAD DESTACADA</span>
+        <h3 class="text-2xl md:text-3xl font-titulos text-titulo mb-2 md:mb-3">{deidadDestacada.nombre.toUpperCase()}</h3>
+        <p class="text-texto/70 text-sm mb-3 md:mb-4 max-w-xl">{deidadDestacada.descripcion_corta}</p>
+        <a href={`/panteon/${deidadDestacada.id}`} class="text-dorado text-xs md:text-sm uppercase tracking-wider hover:underline">LEER HISTORIA COMPLETA →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FRASE DESTACADA -->
+  <section class="mt-10 md:mt-16 h-auto md:h-[90px] bg-verde-profundo flex items-center justify-center border-t border-dorado/30 py-6 md:py-0">
+    <p class="text-titulo italic text-base md:text-lg max-w-4xl text-center px-6">
+      "Los mitos no son relatos del pasado; son formas de comprender el mundo que aún viven en la memoria de los pueblos."
+    </p>
+  </section>
+</MainLayout>

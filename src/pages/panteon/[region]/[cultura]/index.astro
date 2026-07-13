@@ -1,0 +1,122 @@
+---
+import MainLayout from '../../../../layouts/MainLayout.astro';
+import EntityCard from '../../../../components/EntityCard.astro';
+import dioses from '../../../../data/dioses.json';
+
+export function getStaticPaths() {
+  const mapeoCulturaRegion = {
+    "Muisca": "andina", "Nasa": "andina", "Pijao": "andina", "Uwa": "andina", "misak": "andina",
+    "Kogui": "caribe", "Wayuu": "caribe", "Zenú": "caribe",
+    "Uitoto": "amazonia", "Tikuna": "amazonia", "Tukano": "amazonia", "Bora": "amazonia", "Yagua": "amazonia",
+    "awa": "pacifico", "embera": "pacifico", "wounaan": "pacifico",
+    "Sikuani": "orinoquia", "Achagua": "orinoquia", "Piapoco": "orinoquia"
+  };
+  const paths = [];
+  const culturasProcesadas = new Set();
+  dioses.forEach(d => {
+    const region = mapeoCulturaRegion[d.cultura];
+    const culturaSlug = d.cultura.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+    const key = `${region}/${culturaSlug}`;
+    if (region && !culturasProcesadas.has(key)) {
+      culturasProcesadas.add(key);
+      paths.push({ params: { region, cultura: culturaSlug } });
+    }
+  });
+  return paths;
+}
+
+const { region, cultura } = Astro.params;
+const mapeoCulturaRegion = {
+  "Muisca": "andina", "Nasa": "andina", "Pijao": "andina", "Uwa": "andina", "misak": "andina",
+  "Kogui": "caribe", "Wayuu": "caribe","Zenú": "caribe", "Zenú": "caribe",
+  "Uitoto": "amazonia", "Tikuna": "amazonia", "Tukano": "amazonia", "Bora": "amazonia", "Yagua": "amazonia",
+  "awa": "pacifico", "embera": "pacifico", "wounaan": "pacifico",
+  "Sikuani": "orinoquia", "Achagua": "orinoquia", "Piapoco": "orinoquia", 
+};
+
+// Encontrar la cultura real a partir del slug
+const culturaReal = [...new Set(dioses.map(d => d.cultura))].find(c => c.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '') === cultura);
+
+const deidades = culturaReal ? dioses.filter(d => d.cultura === culturaReal) : [];
+const nombresRegiones = { caribe: 'Caribe', andina: 'Andina', pacifico: 'Pacífico', orinoquia: 'Orinoquía', amazonia: 'Amazonía' };
+
+// Textos de cosmovisión por cultura (extraídos del HTML original)
+const textosCosmovision = {
+  "Kogui": `<p>Todo surge de <strong>Aluna</strong>, el pensamiento y la memoria de la Gran Madre. De ella nacen los primeros seres espirituales que dan forma al cosmos: <strong>Gaulchováng</strong>, la Madre primordial que era agua y noche; <strong>Sintána</strong>, el primer hombre y héroe cultural que obtiene la tierra fértil; y <strong>Seiyankua</strong>, el creador de la tierra sólida, los metales y la humanidad. Juntos representan el tránsito del pensamiento a la materia.</p>
+  <p>La Gran Madre dio a luz a los Padres del Mundo, quienes organizaron los elementos. <strong>Sukukui</strong> creó el mar; <strong>Makuyantana</strong>, el fuego; <strong>Duguenavi</strong>, los animales y el arte chamánico; y <strong>Mulkuexe</strong> otorgó el primer pensamiento a los humanos. Las fuerzas primordiales y los linajes sagrados completan esta cosmovisión donde la dualidad, el equilibrio y el destino rigen la existencia.</p>`,
+  
+  "Wayuu": `<p>La cosmovisión <strong>Wayúu</strong> está poblada de dioses creadores, astros, espíritus de la naturaleza y héroes culturales. Maleiwa, el ser supremo, creó a los wayúu; Juyá y Mma, la lluvia y la tierra, fecundan la vida; Pulowi gobierna los vientos; y los astros Ka'i y Kashi iluminan el camino. Héroes como los que robaron el fuego y los gemelos transformadores dieron forma al mundo wayúu.</p>`,
+  
+  "Zenú": `<p>La cosmovisión <strong>Zenú</strong> nace en la oscuridad primordial, cuando solo existían <strong>Mexión</strong>, el indio hermoso como el sol, y <strong>Manexca</strong>, la mujer de un solo seno, los padres creadores de todo cuanto existe. De su unión nacieron los <strong>Hijos Fundadores</strong> —Tuchínzunga, Sajú, Tolú, Orica, Chimá, Colosó y otros—, repartidos por el territorio para dar origen a los pueblos y a los oficios sagrados: la orfebrería, la alfarería, la medicina tradicional y el tejido de la caña flecha.</p>
+  <p>Para iluminar el mundo, Mexión envió a su hijo <strong>Ninha</strong> al cielo, convertido en el <strong>Sol</strong>, dador de vida y calor; luego él mismo ascendió transformado en <strong>Thi</strong>, la <strong>Luna</strong>, para traer la noche y el descanso. De la unión de ambos surge <strong>Ninhathi</strong>, la divinidad bisexual que representa el equilibrio entre el hombre y la mujer, el día y la noche, lo seco y lo húmedo.</p>
+  <p>En las ciénagas y los ríos habita el <strong>Hombre Hicotea</strong>, el dios de las aguas con cabeza humana y cuerpo de tortuga, guardián de la pesca y dueño de los espejos de agua; y en la montaña sagrada de Murrucucú reinaba el <strong>Dios del Sinú</strong>, ídolo de oro que surgió de la tormenta, se convertía en antorcha de luz y defendía el territorio de los invasores. Todos ellos sostienen el orden del <em>Gran Zenú</em>, la casa anfibia donde el agua, la tierra y el firmamento se tejen como una sola vida.</p>`,
+
+  "Muisca": `<p>Los tres dioses fundamentales del panteón muisca son <strong>Chiminigagua</strong>, el ser supremo y creador de la luz; <strong>Sué</strong>, el dios solar que rige la fertilidad y la vida; y <strong>Chía</strong>, la diosa lunar que simboliza la noche y la feminidad. Juntos representan el origen, el orden y el equilibrio del cosmos.</p>
+  <p>Los guardianes, creadores y fuerzas de la naturaleza muisca completan el panteón: <strong>Bagüe</strong>, la Madre Abuela primordial; <strong>Bachué</strong>, la madre ancestral que emergió de la laguna para poblar la tierra; <strong>Chibchacum</strong>, dios de las lluvias y los terremotos; <strong>Bochica</strong>, el héroe civilizador que enseñó las leyes y abrió el Salto del Tequendama; <strong>Huitaca</strong>, la diosa rebelde del placer y la libertad; <strong>Nencatacoa</strong>, protector de los artesanos; <strong>Cuchavira</strong>, el arco iris mensajero; y <strong>Chaquén</strong>, dios del trabajo y la guerra ritual.</p>`,
+  
+  "Nasa": `<p>La cosmovisión <strong>Nasa</strong> (Páez) es un tejido sagrado donde el origen del pueblo surge de la unión del Padre Estrella y la Madre Agua en lo alto de las montañas. El Gran Espíritu <strong>Ks'a'w Wala</strong> dio vida a los espíritus mayores: <strong>Ekthe'</strong> (el Trueno), <strong>Tay</strong> (el Sol), <strong>A'te</strong> (la Luna) y los guardianes de la naturaleza como <strong>Daat'i</strong> y <strong>Kl'umn</strong>. El héroe cultural <strong>Juan Tama de la Estrella</strong>, nacido de las aguas, unificó al pueblo, estableció sus leyes y regresó a la laguna, desde donde sigue protegiendo el territorio. Rituales como el <strong>Saakhelu</strong> y el <strong>Sek Buy</strong> mantienen viva la comunicación con los espíritus y aseguran el equilibrio de la madre tierra (<strong>Uma Kiwe</strong>).</p>`,
+  
+  "Pijao": `<p>En el principio solo existía la Gran Laguna (<strong>Tanachainá</strong>), un mundo de agua fría y oscura donde yacían dormidos los gigantes serpentinos <strong>Tolemá</strong> e <strong>Ivichikuko</strong>, cuyo respirar aún estremece la tierra. Del vientre de esa laguna primordial emergieron las deidades que ordenarían el cosmos: <strong>Locomboo</strong>, la abuela del tiempo que dibujó la espiral de la existencia; <strong>Nacuco</strong>, el dios creador de fuego interior cuyo encierro por la casta <strong>Ibamaca</strong> dio origen a los volcanes y manantiales de agua caliente y fría; y <strong>Lulumoy</strong>, el "Dios Grande" de tres cabezas y seis brazos, guardián de la justicia y la sabiduría en la Sierra de los Órganos. Sobre ellos, el Padre Sol (<strong>Ta</strong>) y la Madre Luna (<strong>Taiba</strong>) iniciaron la danza de opuestos que permite la vida, mientras <strong>Guimbales</strong>, el gigante del trueno, ruge desde los cerros de Abechucos protegiendo las vigas de oro que sostienen el mundo.</p>`,
+  
+  "Uwa": `<p>La cosmovisión <strong>U'wa</strong> (Tunebo) se teje en torno al equilibrio entre los mundos de arriba, abajo y el intermedio, representados por las esferas de colores: blanco, rojo, azul y amarillo. En el principio, <strong>Rurcocá</strong>, la abuela primordial, sentada en su banquito y chupando coca celestial, pensó y creó a <strong>Sira</strong>, el padre celeste, fuente de la ley ancestral y guardián de la madre tierra. Desde el mundo de abajo, <strong>Kanwará</strong>, el "diablo rojo", aportó la imperfección y la enfermedad, fuerzas necesarias para el movimiento y la transformación. Los héroes culturales como <strong>Yagshowa</strong>, el dador de bienes, robaron el limo primordial para traer la vida al mundo intermedio, mientras <strong>Baukara</strong> piensa y coloca los lagos de las tierras altas, de donde nacen plantas, animales y hombres. Los U'wa, organizados en ocho clanes que son los postes que sostienen la casa del mundo (Teba), cantan sus mitos en las cuatro estaciones para mantener la armonía cósmica.</p>`,
+  
+  "misak": `<p>La cosmovisión <strong>Misak</strong> (Guambianos) es un tejido sagrado tejido en la dualidad de <strong>Pishimisak</strong> y <strong>Kallim</strong>, los grandes espíritus que encierran lo masculino y lo femenino, el páramo y el clima cálido. En el principio, las lagunas <strong>Ñimbe</strong> (madre) y <strong>Piendamó</strong> (padre) se unieron en una danza de creación, y de su encuentro surgió el arcoíris <strong>Kosrompoto</strong>, cuya luz iluminó el nacimiento de los primeros humanos: los <strong>Pishau</strong>, gigantes sabios que construyeron el territorio ancestral, <em>Nupirau</em>, antes de la llegada de los españoles. De las aguas cristalinas del río formado por el arcoíris nacieron los primeros caciques, <strong>Tata Illimpi</strong> y <strong>Mama Keltsi</strong>, quienes recibieron de Pishimisak y Kallim las enseñanzas para gobernarse, amar la naturaleza y vivir en paz. La <strong>Mama Manuela Caramaya</strong>, la Mama Grande, protegió al pueblo con su sabiduría guerrera, transformando a los enemigos en frailejones, y el travieso <strong>Pedro</strong> remodeló el paisaje con su magia, salvando la vida en su gran tambor.</p>`,
+  
+  "awa": `<p>La cosmovisión <strong>Awá</strong> (ɨnkal Awá) se sostiene sobre <strong>cuatro mundos</strong> verticales: el <strong>Masa Su</strong> (mundo inferior de los seres pequeños que comen humo), el <strong>Pas Su</strong> (mundo de los Awá vivos), el <strong>Kutña Su</strong> (mundo de los muertos y los espíritus) y el <strong>Ampara Su</strong> (mundo del Creador supremo). En el principio, una <strong>barbacha negra</strong> descendió de un árbol para dar vida al primer hombre <strong>Atim Awá</strong>, y una <strong>barbacha blanca</strong> creó a la primera mujer <strong>Ashampa</strong>. De la unión de <strong>Dios</strong> y <strong>el diablo</strong> surgieron la tierra y las peñas, los cultivos y los peligros. El <strong>Árbol Grande (Katsa Ti)</strong> albergaba todas las semillas; al ser derribado, esparció los alimentos por el territorio y marcó el origen de la agricultura.</p>`,
+  
+  "embera": `<p>La cosmovisión <strong>Emberá</strong> (êbêra, "gente") se organiza en <strong>tres mundos verticales</strong>: el <strong>Bajía</strong> (mundo de arriba, de las cosas azules), donde residen <strong>Dachizeze</strong> (el ser primordial andrógino) y <strong>Karagabí</strong> (dios creador); el <strong>mundo medio</strong> (egoró), habitado por los Emberá vivos; y el <strong>Armucurá</strong> (mundo subterráneo), gobernado por <strong>Tutruica</strong>, el oponente eterno de Karagabí. En el principio, <strong>Dachizeze</strong> lanzó un escupitajo y de su saliva nació <strong>Karagabí</strong>, quien creó a los humanos, el sol (Humántahu), la luna (Gedeco) y ordenó el cosmos. <strong>Karagabí</strong> derribó el árbol sagrado <strong>Jenené</strong> para liberar las aguas que formaron ríos y mares; castigó con transformaciones a los mezquinos y desobedientes, convirtiéndolos en animales. <strong>Pakoré Wera</strong>, hija de Dachizeze, creó la naturaleza, los animales y es la madre del monte, custodia de las cacerías. <strong>Dabeiba</strong>, hija de Karagabí, enseñó a los Emberá a tejer, hacer cerámica, pintarse y sembrar; desde el cielo gobierna las tempestades. <strong>Cobaima</strong>, el primer jaibaná, ordenó el territorio, separó los animales dañinos y nombró los ríos.</p>`,
+  
+  "wounaan": `<p>La cosmovisión <strong>Wounaan</strong> (Waunana, Noanamá) se ordena en <strong>cuatro mundos</strong> verticales: el <strong>Maach Ai Pomaam jeb</strong> (mundo del Padre Mayor, el Creador), el <strong>Êwandam jeb</strong> (mundo del hijo moldeador), el <strong>Wounaan jeb</strong> (mundo de los vivos, los animales y los cultivos) y el <strong>Aharmia jeb</strong> (mundo inferior). En el principio, <strong>Maach Aai</strong> surgió de una laguna primordial, creó la tierra, el mar, las montañas, el sol y la luna. En la playa del Baudó engendró a su hijo <strong>Êwandam</strong>, quien, sintiéndose solo, intentó crear gente con madera de chonta (demasiado dura) y balso (demasiado blanda), hasta que halló en el <strong>barro</strong> la materia perfecta: moldeó miles de figuras y su padre les dio vida. Los <strong>waspien</strong> son espíritus invisibles, dueños del <em>chi mie</em> (poder espiritual), organizados con su propio cacique; habitan bosques, quebradas y lagunillas, protegen la flora y la fauna, y otorgan o quitan poder según se respete el territorio.</p>`,
+  
+  "Uitoto": `<p>La cosmovisión <strong>Uitoto</strong> (murui-muinane) concibe el universo como <strong>cinco mundos superpuestos</strong>: dos cielos, la tierra (<em>nanie</em>) y dos inframundos. En el origen no existía nada; <strong>Nofïdeño (Buinaiño)</strong>, la Madre Primordial, sostenía el cosmos y de su vientre brotaron los árboles frutales, la coca, el tabaco y la humanidad. De su aliento nació <strong>Mooma (Naainuema / Juziñamui)</strong>, el Padre Creador, quien separó los cielos, creó el agua y modeló a los primeros seres. Tras el gran diluvio de agua caliente, <strong>Buinaima (Jitoma)</strong> restauró el mundo con ayuda de su astuto hermano <strong>Fïzido (el Picaflor)</strong>, quien robó el fuego a <strong>Muinájema</strong>, el guardián oriental. <strong>Unámarai</strong>, padre del Yajé, organizó los clanes, estableció las leyes y venció al espíritu maligno <strong>Jóriai</strong>.</p>`,
+  
+  "Tikuna": `<p>La cosmovisión <strong>Tikuna</strong> divide el cosmos en <strong>tres mundos</strong>: el superior (morada de inmortales, Tae y el Rey Gallinazo), el intermedio (tierra de los mortales) y el inferior (aguas profundas y seres incompletos). En el origen, <strong>Mowíchina</strong> creó a <strong>Ngṵtapa</strong>, padre primordial, quien intentó formar humanos hasta que, picado por avispas en las rodillas, de ellas nacieron los gemelos <strong>Yoí</strong> e <strong>Ípi</strong> con sus hermanas. Yoí, héroe civilizador, estableció leyes, clanes y pescó a los primeros Tikuna en la quebrada <strong>Eware</strong> usando yuca; Ípi, trickster desordenado, al rallar huito deshizo su carne en el agua, dando origen a los peces y a otros pueblos. Del tronco caído del árbol <strong>Wone</strong> nació el río Amazonas. La gran anaconda <strong>Yéwae</strong>, manifestada como arco iris, sostiene los mundos y es dueña del agua.</p>`,
+  
+  "Tukano": `<p>La cosmovisión <strong>Tukano</strong> concibe el universo como una maloca de tres pisos: el <strong>cielo</strong> (mundo del Sol, la Luna y las estrellas), la <strong>tierra</strong> (morada de los humanos) y el <strong>mundo inferior</strong> (Río de los Muertos, aguas subterráneas). En el origen, <strong>Yepá Huáke</strong>, el creador supremo, estableció las leyes del cosmos y designó a <strong>Yúpuri Baúro</strong> como jefe de todas las gentes. La <strong>Anaconda Canoa</strong> remontó los ríos trayendo en su vientre a los ancestros de los distintos clanes, que emergieron para poblar el territorio. <strong>Yepá Uejkeó</strong>, hermana del creador, trajo los primeros palitos de yuca, dando origen a la agricultura. Las flautas sagradas <strong>Yuruparises</strong> son los ancestros mismos; su posesión definió el orden social y la separación de los sexos.</p>`,
+  
+  "Bora": `<p>En el principio solo existía el agua y la oscuridad. <strong>Píívyéjɨ Niimúhe</strong>, el Creador de la Tierra, soltó su palabra en forma de algodón y de ella surgió la primera tierra con forma de seno femenino; de su pezón brotaron la yuca, el tabaco y la coca. El primer hombre, <strong>Píínééwá Niimúhe</strong>, construyó la maloca –el centro del mundo– con ayuda del <strong>Asiento Verde</strong>, antepasado del clan Caraná. De la yuca dulce nació la primera mujer, <strong>Pitné Májchotájimééwa</strong>, quien descubrió el casabe y la cahuana, alimentos que sostienen la vida. El héroe cultural robó el pijuayo (chontaduro) al dueño de los peces, <strong>Dóóránie Bóóa</strong>, y cuatro palmeras de pijuayo sostienen el cosmos. <strong>Iámé Wátyo Núhba</strong> es el padre de todos los animales terrestres.</p>`,
+  
+  "Yagua": `<p>La cosmovisión <strong>Yagua</strong> (Ñihamwo) concibe el universo como <strong>ocho mundos superiores y dos inferiores</strong>, unidos por arterias cósmicas que fluyen hacia el Este, tierra de los ancestros inmortales (<strong>Humanati</strong>) y las luces celestes (<strong>Niiyaci</strong>). En el origen, <strong>Tupana</strong>, el Gran Padre, hizo llover sobre la tierra seca; de las primeras gotas nació <strong>Ja</strong>, el primer hombre, y los yagua se convirtieron en los "hijos del agua". <strong>Luna</strong> ("Nuestro Padre"), avergonzado por su incesto, ascendió al cielo llevando las marcas en el rostro, mientras <strong>Sol (Iiñi)</strong>, su hijo, se elevó entre las llamas para traer luz y calor, ofreciendo en vano la inmortalidad a los humanos. Los <strong>Mellizos (Ndano y Mena)</strong> crearon los clanes, vencieron a los salvajes y talaron la <strong>Lupuna</strong>, el árbol que contenía toda el agua; su tronco se convirtió en el Amazonas, sus ramas en los ríos y sus astillas en los peces.</p>`,
+  
+  "Sikuani": `<p>La cosmovisión <strong>Sikuani</strong> (guahibo) nace del <strong>árbol Kaliawirinae</strong>, eje del mundo del que brotaron todos los alimentos y la vida. Antes de la existencia actual, los seres eran <strong>animales pensantes (piasüwi)</strong> que compartían el mismo plano. Al derribar el árbol, los animales se transformaron en humanos y aparecieron la muerte y la agricultura. El universo se ordenó en <strong>tres espacios</strong>: el de los humanos, el de los dueños espirituales de la naturaleza (<strong>ainawi</strong>) y el de los seres sobrenaturales. El dios supremo <strong>Kuwei / Phurnaminali</strong> creó el mundo tras vencer a la anaconda primordial <strong>Kuemi</strong>, que hoy es la Vía Láctea. Los héroes culturales <strong>Tsamani</strong> (delfín) y <strong>Kajuyali</strong> (Orión) ascendieron al cielo y marcaron el calendario; la heroína <strong>Jumeneduawa</strong> inauguró la pubertad femenina.</p>`,
+  
+  "Achagua": `<p>La cosmovisión <strong>Achagua</strong> se organiza en <strong>tres mundos</strong> interconectados: el <strong>mundo de abajo</strong>, donde habitan los espíritus dueños de la naturaleza y de los animales; el <strong>mundo del medio</strong>, donde viven los humanos y se desarrolla la vida cotidiana; y el <strong>mundo de arriba</strong>, donde residen los ancestros transformados en estrellas y fuerzas celestes que orientan el tiempo. Todo el universo está ordenado por fuerzas sagradas y gobernado por el principio del equilibrio. En el origen, el dios creador <strong>Purú</strong> escuchó el clamor del pueblo y envió a su <strong>hija guerrera</strong> para vencer a la gran <strong>serpiente primordial</strong> que destruía la vida; de su cuerpo nacieron los <strong>caribes</strong>, mostrando que el mal puede transformarse. El <strong>árbol Chumachumarri</strong> contenía todos los alimentos y dio origen a la agricultura al dispersar sus semillas.</p>`,
+  
+  "Piapoco": `<p>La cosmovisión <strong>Piapoco</strong> se sostiene sobre <strong>dieciocho mundos superpuestos</strong>: nueve arriba y nueve abajo de la tierra que habitamos. En el principio, <strong>Kalíiduwápini</strong> moldeó con barro a los primeros humanos y les sopló tabaco para darles vida. De su sueño nació <strong>Kúwai (Furna Minali)</strong>, el dios supremo que hizo habitable el mundo al derrotar a <strong>Kemeine</strong>, la anaconda caníbal que hoy brilla en el cielo como la <strong>Vía Láctea</strong>. Kúwai organizó la sociedad, entregó a cada pueblo su idioma y estableció el culto de iniciación. Del <strong>Árbol de la Vida (Kalíiawiri)</strong>, cuyo tronco es el cerro Autana, cayeron todas las plantas cultivadas, marcando el origen de la agricultura. Los hermanos <strong>Makábali (Pléyades)</strong>, <strong>Tzamani (Tauro)</strong> y los demás <strong>tzamanes</strong> ascendieron al cielo flechándolo; <strong>Kawainalu</strong>, la primera mujer, tensó el arco con sus piernas y al hacerlo originó la menstruación, el poder femenino que fecunda la tierra.</p>`
+};
+---
+
+<MainLayout>
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <nav class="text-sm text-texto/50 mb-8">
+      <a href="/" class="hover:text-dorado transition-colors">Inicio</a>
+      <span class="mx-2">›</span>
+      <a href="/panteon" class="hover:text-dorado transition-colors">Panteón</a>
+      <span class="mx-2">›</span>
+      <a href={`/panteon/${region}`} class="hover:text-dorado transition-colors">{nombresRegiones[region]}</a>
+      <span class="mx-2">›</span>
+      <span class="text-dorado">{culturaReal || cultura}</span>
+    </nav>
+
+    <h1 class="text-4xl font-titulos text-dorado mb-4">Deidades {culturaReal || cultura}</h1>
+
+    <!-- Texto de cosmovisión de la cultura -->
+    {textosCosmovision[culturaReal] && (
+      <div class="bg-superficie border border-dorado/20 rounded-2xl p-6 mb-10 text-texto/80 leading-relaxed">
+        <Fragment set:html={textosCosmovision[culturaReal]} />
+      </div>
+    )}
+
+    <h2 class="text-2xl font-titulos text-titulo mb-6">Explora las deidades</h2>
+
+    <a href={`/panteon/${region}`} class="inline-flex items-center gap-2 text-texto/50 hover:text-dorado transition-colors mb-8 text-sm">
+      <i class="fas fa-arrow-left"></i> Volver a culturas
+    </a>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {deidades.map(dios => (
+        <EntityCard {...dios} tipo="dios" />
+      ))}
+    </div>
+  </div>
+</MainLayout>

@@ -1,0 +1,47 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import lugares from '../../data/lugares.json';
+
+export function getStaticPaths() {
+  return lugares.map(l => ({ params: { id: l.id } }));
+}
+
+const { id } = Astro.params;
+const lugar = lugares.find(l => l.id === id);
+const titulo = lugar ? `${lugar.nombre} · Lugares Sagrados` : 'Lugar no encontrado';
+const descripcion = lugar?.descripcion_corta || '';
+---
+
+<MainLayout>
+  <head>
+    <title>{titulo}</title>
+    <meta name="description" content={descripcion} />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:image" content={lugar?.imagen} />
+  </head>
+
+  {lugar ? (
+    <div class="max-w-4xl mx-auto px-6 py-12">
+      <img src={lugar.imagen} alt={lugar.nombre} class="w-full h-auto object-contain rounded-2xl mb-8 shadow-2xl border border-dorado/30" />
+      <h1 class="text-4xl md:text-5xl font-titulos text-dorado mb-4">{lugar.nombre}</h1>
+      <span class="inline-block bg-dorado/20 text-dorado-claro px-4 py-1 rounded-full text-sm mb-6">{lugar.cultura}</span>
+      <h2 class="text-2xl font-titulos text-titulo mb-4">Historia y atributos</h2>
+      <div class="prose prose-invert max-w-none text-texto/90 leading-relaxed" set:html={lugar.descripcion} />
+      <div class="flex flex-wrap gap-4 mt-8 border-t border-dorado/20 pt-6">
+        {lugar.atributos.map((attr, i) => (
+          <span class="text-sm text-texto/70 flex items-center gap-2 bg-fondo/50 px-4 py-2 rounded-full border border-dorado/20">
+            <i class={`fas ${lugar.iconos[i] || 'fa-star'} text-dorado`}></i> {attr}
+          </span>
+        ))}
+      </div>
+      <a href="/lugares" class="inline-flex items-center gap-2 mt-8 text-dorado hover:underline"><i class="fas fa-arrow-left"></i> Volver a lugares sagrados</a>
+    </div>
+  ) : (
+    <div class="text-center py-20">
+      <h1 class="text-3xl font-titulos text-titulo mb-4">Lugar no encontrado</h1>
+      <h2 class="sr-only">Información detallada</h2>
+      <a href="/lugares" class="text-dorado hover:underline"><i class="fas fa-arrow-left"></i> Volver a lugares sagrados</a>
+    </div>
+  )}
+</MainLayout>

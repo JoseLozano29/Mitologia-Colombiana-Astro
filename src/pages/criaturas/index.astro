@@ -1,0 +1,63 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import RegionCard from '../../components/RegionCard.astro';
+import criaturas from '../../data/criaturas.json';
+
+const regiones = ['caribe', 'andina', 'pacifico', 'orinoquia', 'amazonia', 'insular'];
+const nombresRegiones = { 
+  caribe: 'Caribe', andina: 'Andina', pacifico: 'Pacífico', 
+  orinoquia: 'Orinoquía', amazonia: 'Amazonía', insular: 'Insular' 
+};
+
+const descripcionesRegiones = {
+  caribe: 'El sol ardiente y los ríos caudalosos albergan criaturas tan fascinantes como el Hombre Caimán y la temible Llorona.',
+  andina: 'Entre montañas y cafetales, la Patasola, el Mohán y otros espantos recorren los caminos.',
+  pacifico: 'La selva húmeda y los ríos esconden espíritus como la Tunda, el Riviel y la Madre de Agua.',
+  orinoquia: 'Bajo el cielo infinito de los Llanos, galopan el Silbón, la Sayona y otros aparecidos.',
+  amazonia: 'En la selva más vasta del mundo, la Yacumama, el Curupira y el Bufeo Colorado acechan.',
+  insular: 'En las islas, el Duppy, el Rolling Calf y el tesoro del Pirata Morgan esperan en la noche.'
+};
+
+function getImagenRegion(region) {
+  const criatura = criaturas.find(c => c.region === region);
+  return criatura ? criatura.imagen : '/img/logo.webp';
+}
+---
+
+<MainLayout>
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <h1 class="text-4xl font-titulos text-dorado mb-4">Bestiario Colombiano</h1>
+
+    <!-- Texto introductorio general -->
+    <div class="bg-superficie border border-dorado/20 rounded-2xl p-6 mb-10">
+      <p class="text-texto/80 leading-relaxed">
+        <strong class="text-dorado">🌿 Un país de Leyendas.</strong> Colombia, crisol de selvas, ríos, sabanas y costas, es también un territorio fecundo en historias que transitan entre lo real y lo sobrenatural. Cada región —Caribe, Andina, Pacífica, Orinoquía, Amazonía e Insular— ha tejido a lo largo de los siglos un universo propio de <strong class="text-dorado">criaturas, espantos y leyendas</strong> que pueblan la memoria colectiva. Este bestiario ofrece una muestra representativa de esos seres: desde el <strong>Hombre Caimán</strong> que arrastra su condena en el Magdalena, pasando por la <strong>Patasola</strong> que acecha en los cafetales, hasta el <strong>Mohán</strong> guardián de las aguas y el <strong>Sombrerón</strong> que enreda cabelleras en la noche.
+      </p>
+      <p class="text-texto/60 text-sm mt-3">
+        Aquí <strong>no encontrarás dioses creadores ni héroes fundacionales</strong> —ellos tienen su lugar en el <a href="/panteon" class="text-dorado hover:underline">Panteón</a>—, sino los seres que caminan (o arrastran sus cadenas) en los relatos de pescadores, campesinos y viajeros. Son los vecinos invisibles de lo cotidiano: ánimas en pena, transformados por hechizos, dueños de los montes y protectores vengativos. Al recorrer estas fichas, recuerda que cada espanto lleva consigo una enseñanza, una advertencia o un eco profundo del respeto que debemos a la naturaleza y a los pactos que nos preceden.
+      </p>
+    </div>
+
+    <p class="text-texto/70 text-lg mb-10 max-w-3xl">
+      Selecciona una región para explorar sus leyendas.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {regiones.map(region => (
+        <RegionCard
+          nombre={nombresRegiones[region]}
+          imagen={getImagenRegion(region)}
+          descripcion={descripcionesRegiones[region]}
+          href={`/criaturas/${region}`}
+        />
+      ))}
+    </div>
+
+    <!-- Nota de exhaustividad -->
+    <div class="bg-superficie border-l-4 border-dorado rounded-r-2xl p-6 mt-16">
+      <p class="text-texto/70 italic">
+        <strong class="text-dorado">Un bestiario vivo.</strong> Colombia es un país de regiones, y su tradición oral es inabarcable. Este listado de criaturas es una compilación de las más representativas, pero existen muchas más en las narrativas locales de cada pueblo. Gran parte de este conocimiento es <strong>sagrado y reservado</strong> para las comunidades. Esta página es una ventana respetuosa a ese inmenso universo de imaginación y fe.
+      </p>
+    </div>
+  </div>
+</MainLayout>

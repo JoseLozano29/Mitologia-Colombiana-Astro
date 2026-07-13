@@ -1,0 +1,63 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import RegionCard from '../../components/RegionCard.astro';
+import dioses from '../../data/dioses.json';
+
+const regiones = ['caribe', 'andina', 'pacifico', 'orinoquia', 'amazonia'];
+const nombresRegiones = { caribe: 'Caribe', andina: 'Andina', pacifico: 'Pacífico', orinoquia: 'Orinoquía', amazonia: 'Amazonía' };
+
+const descripcionesRegiones = {
+  caribe: 'El sol ardiente, las ciénagas y el poderoso río Magdalena son el escenario de las leyendas más vibrantes de Colombia.',
+  andina: 'Entre montañas, cafetales y valles sagrados, la región Andina es el corazón legendario del país.',
+  pacifico: 'La selva húmeda, los ríos caudalosos y el misterioso Océano Pacífico albergan espíritus y dioses ancestrales.',
+  orinoquia: 'Bajo el cielo infinito de los Llanos Orientales, galopan las almas en pena y los espiritus castigadores.',
+  amazonia: 'En la selva más vasta del mundo, las leyendas son advertencias vivas de respeto por la naturaleza.'
+};
+
+function getImagenRegion(region) {
+  const m = {
+    "Muisca": "andina", "Nasa": "andina", "Pijao": "andina", "Uwa": "andina", "misak": "andina",
+    "Kogui": "caribe", "Wayuu": "caribe",
+    "Uitoto": "amazonia", "Tikuna": "amazonia", "Tukano": "amazonia", "Bora": "amazonia", "Yagua": "amazonia",
+    "awa": "pacifico", "embera": "pacifico", "wounaan": "pacifico",
+    "Sikuani": "orinoquia", "Achagua": "orinoquia", "Piapoco": "orinoquia"
+  };
+  const dios = dioses.find(d => m[d.cultura] === region);
+  return dios ? dios.imagen : '/img/logo.webp';
+}
+---
+
+<MainLayout>
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <h1 class="text-4xl font-titulos text-dorado mb-4">Panteón de Dioses Colombianos</h1>
+
+    <!-- Texto introductorio general -->
+    <div class="bg-superficie border border-dorado/20 rounded-2xl p-6 mb-10">
+      <p class="text-texto/80 leading-relaxed">
+        <strong class="text-dorado">Colombia</strong> no tiene una mitología única: es un tejido de más de 100 pueblos indígenas (muiscas, wayúu, kogi, uitoto, tikuna, emberá…). Cada cultura concibe su propio cosmos. Aquí presentamos una <strong class="text-dorado">selección representativa</strong> de deidades, espíritus y héroes culturales, con profundo respeto por los saberes originarios, muchos de los cuales permanecen reservados o se transmiten sólo en lenguas nativas.
+      </p>
+    </div>
+
+    <p class="text-texto/70 text-lg mb-10 max-w-3xl">
+      Selecciona una región para descubrir sus culturas.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {regiones.map(region => (
+        <RegionCard
+          nombre={nombresRegiones[region]}
+          imagen={getImagenRegion(region)}
+          descripcion={descripcionesRegiones[region]}
+          href={`/panteon/${region}`}
+        />
+      ))}
+    </div>
+
+    <!-- Nota de respeto -->
+    <div class="bg-superficie border-l-4 border-dorado rounded-r-2xl p-6 mt-16">
+      <p class="text-texto/70 italic">
+        <strong class="text-dorado">¿Por qué no hay una lista única?</strong> Más de 100 pueblos originarios (wayúu, emberá, nasa, sikuani, kamentzá…) y cada uno posee múltiples dueños de lugares, espíritus y creadores. Gran parte de ese saber es <strong>restringido o sagrado</strong> y no debe ser listado sin contexto. Esta página es apenas una muestra respetuosa y nunca exhaustiva.
+      </p>
+    </div>
+  </div>
+</MainLayout>

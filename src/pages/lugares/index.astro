@@ -1,0 +1,66 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import MapaColombia from '../../components/MapaColombia.astro';
+import RegionCard from '../../components/RegionCard.astro';
+import lugares from '../../data/lugares.json';
+
+const regiones = ['caribe', 'andina', 'pacifica', 'orinoquia', 'amazonia', 'insular'];
+const nombresRegiones = { 
+  caribe: 'Caribe', andina: 'Andina', pacifica: 'Pacífico', 
+  orinoquia: 'Orinoquía', amazonia: 'Amazonía', insular: 'Insular' 
+};
+
+const descripcionesRegiones = {
+  caribe: 'La Sierra Nevada, la Ciudad Perdida y las ciénagas sagradas del Caribe colombiano.',
+  andina: 'Lagunas, volcanes y cerros donde los dioses muiscas, pijaos y u\'wa dejaron su huella.',
+  pacifica: 'Ríos y selvas del Baudó, el Atrato y la costa del Pacífico que guardan historias de creación.',
+  orinoquia: 'Los Llanos Orientales, con el cerro Autana y los raudales de Hipana, están llenos de mitos.',
+  amazonia: 'La selva amazónica es un templo viviente con lagunas sagradas y el río Pirá Paraná.',
+  insular: 'Cuevas, arrecifes y montañas de San Andrés y Providencia donde habitan los espíritus raizales.'
+};
+
+function getImagenRegion(region) {
+  const lugar = lugares.find(l => l.region === region);
+  return lugar ? lugar.imagen : '/img/logo.webp';
+}
+---
+
+<MainLayout>
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <h1 class="text-4xl font-titulos text-dorado mb-4">Lugares Sagrados de Colombia</h1>
+
+    <!-- Texto introductorio general -->
+    <div class="bg-superficie border border-dorado/20 rounded-2xl p-6 mb-10">
+      <p class="text-texto/80 leading-relaxed">
+        <strong class="text-dorado">🌎 Geografía sagrada.</strong> Colombia es un territorio donde la naturaleza es concebida como un ser vivo y sagrado. Cada laguna, montaña, río y cerro puede ser la morada de un espíritu, el escenario de un mito fundacional o un lugar de conexión con lo divino. Esta sección reúne los <strong class="text-dorado">lugares más emblemáticos</strong> en las cosmovisiones de los pueblos originarios y afrodescendientes del país.
+      </p>
+      <p class="text-texto/60 text-sm mt-3">
+        Aquí <strong>no encontrarás dioses, criaturas ni héroes</strong> —ellos tienen su lugar en el <a href="/panteon" class="text-dorado hover:underline">Panteón</a> y el <a href="/criaturas" class="text-dorado hover:underline">Bestiario</a>—, sino los <strong>territorios sagrados</strong> que aún hoy son custodiados por comunidades indígenas y raizales. Son los escenarios donde ocurrieron las creaciones, los diluvios, las transformaciones y los pactos con lo sobrenatural. Al recorrer estas fichas, recuerda que cada montaña, cada laguna y cada río lleva consigo una historia viva que merece respeto.
+      </p>
+    </div>
+
+    <MapaColombia />
+
+    <p class="text-texto/70 text-lg mt-10 mb-10 max-w-3xl">
+      Selecciona una región para descubrir sus lugares sagrados.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {regiones.map(region => (
+        <RegionCard
+          nombre={nombresRegiones[region]}
+          imagen={getImagenRegion(region)}
+          descripcion={descripcionesRegiones[region]}
+          href={`/lugares/${region}`}
+        />
+      ))}
+    </div>
+
+    <!-- Nota de respeto -->
+    <div class="bg-superficie border-l-4 border-dorado rounded-r-2xl p-6 mt-16">
+      <p class="text-texto/70 italic">
+        <strong class="text-dorado">Un territorio vivo.</strong> Muchos de estos lugares aún son custodiados por comunidades indígenas y afrodescendientes, y su acceso o visita puede estar restringido por su sacralidad. Esta página es una ventana respetuosa, nunca una invitación al turismo irrespetuoso. La información aquí presentada es una compilación de fuentes etnográficas y tradición oral, y se comparte con el propósito de divulgar la riqueza espiritual de Colombia.
+      </p>
+    </div>
+  </div>
+</MainLayout>
