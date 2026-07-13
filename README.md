@@ -25,9 +25,9 @@ Explora dioses, criaturas y lugares sagrados de más de 100 pueblos originarios.
 
 ---
 
-## 🚀 Demo en vivo
+## 🚀 Democrático en vivo.
 
-Próximamente en Cloudflare Pages.
+https://mitologia-colombiana.netlify.app/
 
 ---
 
@@ -96,13 +96,13 @@ Cada nueva ficha se agrega como un objeto JSON, sin necesidad de tocar código H
 Escribe a panteoncolombia@gmail.com o abre un issue en este repositorio.
 👤 Autor
 
-José Aureliano Lozano Mojica
+Jose Aureliano Lozano Mojica
 Licenciado en Producción Agropecuaria
 Tecnólogo en Análisis y Desarrollo de Software
 
 📄 Licencia
 
-Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo LICENSE para más detalles.
+Este proyecto está licenciado bajo la Licencia .Creative Commons BY-NC-ND 4.0 Consulta el archivo LICENSE para más detalles.
 
 🙏 Agradecimientos
 
