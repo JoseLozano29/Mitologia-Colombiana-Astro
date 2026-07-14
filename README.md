@@ -25,7 +25,7 @@ Explora dioses, criaturas y lugares sagrados de más de 100 pueblos originarios.
 
 ---
 
-## 🚀 Democrático en vivo.
+## 🚀 Demo en vivo.
 
 https://mitologia-colombiana.netlify.app/
 
